@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Generate Icons</title>
+  <style>
+    body { background: #222; color: #eee; font-family: sans-serif; padding: 2rem; }
+    canvas { border: 1px solid #444; margin: 0.5rem; }
+    a { color: #8cf; margin-right: 1rem; }
+  </style>
+</head>
+<body>
+  <h2>Icon Preview (10:10:00)</h2>
+  <div id="previews"></div>
+  <div id="links" style="margin-top:1rem;"></div>
+  <script>
+    const sizes = [192, 512];
+
+    function drawBar(ctx, x1, y1, x2, y2, hw, color, angle) {
+      const perp = angle + Math.PI / 2;
+      const px = Math.cos(perp) * hw;
+      const py = Math.sin(perp) * hw;
+      ctx.beginPath();
+      ctx.moveTo(x1 - px, y1 - py);
+      ctx.lineTo(x1 + px, y1 + py);
+      ctx.lineTo(x2 + px, y2 + py);
+      ctx.lineTo(x2 - px, y2 - py);
+      ctx.closePath();
+      ctx.fillStyle = color;
+      ctx.fill();
+    }
+
+    function drawDauphine(ctx, cx, cy, angleDeg, length, halfWidth, color) {
+      const a = angleDeg * Math.PI / 180;
+      const cos = Math.cos(a), sin = Math.sin(a);
+      const px = -sin * halfWidth, py = cos * halfWidth;
+      const midX = cx + cos * length * 0.35, midY = cy + sin * length * 0.35;
+      const tipX = cx + cos * length, tipY = cy + sin * length;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(midX + px, midY + py);
+      ctx.lineTo(tipX, tipY);
+      ctx.lineTo(midX - px, midY - py);
+      ctx.closePath();
+      ctx.fillStyle = color;
+      ctx.fill();
+    }
+
+    function drawSecondHand(ctx, cx, cy, angleDeg, length, tail, color) {
+      const a = angleDeg * Math.PI / 180;
+      ctx.beginPath();
+      ctx.moveTo(cx - Math.cos(a) * tail, cy - Math.sin(a) * tail);
+      ctx.lineTo(cx + Math.cos(a) * length, cy + Math.sin(a) * length);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = Math.max(1.2, length / 80);
+      ctx.lineCap = "round";
+      ctx.stroke();
+    }
+
+    function drawIcon(canvas, size) {
+      const ctx = canvas.getContext("2d");
+      canvas.width = size;
+      canvas.height = size;
+      const cx = size / 2;
+      const r = size * 0.45;
+
+      ctx.fillStyle = "#111";
+      ctx.fillRect(0, 0, size, size);
+
+      // バーインデックス + 分目盛り
+      for (let i = 0; i < 60; i++) {
+        const angle = (i * 6 - 90) * Math.PI / 180;
+        const cos = Math.cos(angle), sin = Math.sin(angle);
+        if (i % 5 === 0) {
+          const len = r * 0.13;
+          const hw = r * 0.025;
+          const perp = angle + Math.PI / 2;
+          const inner = r - len;
+          if (i === 0) {
+            const gap = r * 0.02;
+            for (const offset of [-gap, gap]) {
+              const ox = Math.cos(perp) * offset, oy = Math.sin(perp) * offset;
+              drawBar(ctx, cx + cos * inner + ox, cx + sin * inner + oy,
+                      cx + cos * r + ox, cx + sin * r + oy, hw * 0.6, "#eee", angle);
+            }
+          } else {
+            drawBar(ctx, cx + cos * inner, cx + sin * inner,
+                    cx + cos * r, cx + sin * r, hw, "#eee", angle);
+          }
+        } else {
+          const len = r * 0.03;
+          ctx.beginPath();
+          ctx.moveTo(cx + cos * (r - len), cx + sin * (r - len));
+          ctx.lineTo(cx + cos * r, cx + sin * r);
+          ctx.strokeStyle = "#555";
+          ctx.lineWidth = Math.max(1, size / 200);
+          ctx.stroke();
+        }
+      }
+
+      const h = 10, m = 10, s = 0;
+      drawDauphine(ctx, cx, cx, (h % 12 + m / 60) * 30 - 90, r * 0.55, r * 0.045, "#eee");
+      drawDauphine(ctx, cx, cx, (m + s / 60) * 6 - 90, r * 0.78, r * 0.03, "#eee");
+      drawSecondHand(ctx, cx, cx, s * 6 - 90, r * 0.85, r * 0.18, "#e57373");
+
+      ctx.beginPath();
+      ctx.arc(cx, cx, r * 0.025, 0, Math.PI * 2);
+      ctx.fillStyle = "#e57373";
+      ctx.fill();
+    }
+
+    const previews = document.getElementById("previews");
+    const links = document.getElementById("links");
+
+    sizes.forEach((size) => {
+      const canvas = document.createElement("canvas");
+      canvas.style.width = Math.min(size, 256) + "px";
+      canvas.style.height = Math.min(size, 256) + "px";
+      drawIcon(canvas, size);
+      previews.appendChild(canvas);
+
+      const a = document.createElement("a");
+      a.download = `icon-${size}.png`;
+      a.href = canvas.toDataURL("image/png");
+      a.textContent = `Download icon-${size}.png`;
+      links.appendChild(a);
+    });
+  </script>
+</body>
+</html>
