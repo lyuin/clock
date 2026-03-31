@@ -1,0 +1,37 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Meiryo UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif;
+  background: #111;
+  color: #eee;
+  height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+#app {
+  text-align: center;
+  width: 100%;
+  padding: 1rem;
+}
+
+#clock {
+  width: 80vmin;
+  height: 80vmin;
+}
+
+#version {
+  position: fixed;
+  bottom: 8px;
+  right: 8px;
+  font-size: 10px;
+  color: #333;
+}
