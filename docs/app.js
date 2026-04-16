@@ -1,34 +1,38 @@
-const canvas = document.getElementById("clock");
+const $ = (id) => document.getElementById(id);
+
+const canvas = $("clock");
 const ctx = canvas.getContext("2d");
 
+// --- Wake Lock (ボタン操作) ---
 let wakeLock = null;
 
-// --- Wake Lock (API + iOS動画フォールバック) ---
-async function requestWakeLock() {
+async function toggleWakeLock() {
+  const btn = $("wakelock");
+  if (wakeLock) {
+    await wakeLock.release();
+    wakeLock = null;
+    btn.classList.remove("active");
+    btn.textContent = "lock off";
+    return;
+  }
   try {
     wakeLock = await navigator.wakeLock.request("screen");
-    wakeLock.addEventListener("release", () => { wakeLock = null; });
-  } catch { /* unsupported or denied */ }
-  startNoSleepVideo();
-}
-
-function startNoSleepVideo() {
-  if (document.getElementById("nosleep")) return;
-  const video = document.createElement("video");
-  video.id = "nosleep";
-  video.setAttribute("playsinline", "");
-  video.setAttribute("muted", "");
-  video.muted = true;
-  video.loop = true;
-  video.style.cssText = "position:fixed;opacity:0;width:1px;height:1px;pointer-events:none;";
-  video.src = "data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAACttZGF0AAACrgYF//+q3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE1MAAAABhzdHRzAAAAAAAAAAEAAAABAAAEAAAAABRzdHNzAAAAAAAAAAEAAAABAAAAHHN0c2MAAAAAAAAAAgAAAAEAAAABAAAAAQAAAAIAAAABAAAAKHN0c3oAAAAAAAAAAAAAAAIAAAK1AAAACwAAABRzdGNvAAAAAAAAAAEAAAAwAAAAYnVkdGEAAABabWV0YQAAAAAAAAAhaGRscgAAAAAAAAAAbWRpcmFwcGwAAAAAAAAAAAAAAAAtaWxzdAAAACWpdG9vAAAAHWRhdGEAAAABAAAAAExhdmY2MC4xNi4xMDA=";
-  document.body.appendChild(video);
-  video.play().catch(() => {});
-  document.addEventListener("touchstart", () => video.play().catch(() => {}), { once: true });
+    wakeLock.addEventListener("release", () => {
+      wakeLock = null;
+      btn.classList.remove("active");
+      btn.textContent = "lock off";
+    });
+    btn.classList.add("active");
+    btn.textContent = "lock on";
+  } catch (err) {
+    console.error(`${err.name}, ${err.message}`);
+  }
 }
 
 document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible") requestWakeLock();
+  if (document.visibilityState === "visible") {
+    if ($("wakelock").classList.contains("active")) toggleWakeLock();
+  }
 });
 
 // --- 描画 ---
@@ -106,7 +110,7 @@ function drawHand(cx, cy, angleDeg, length, width, color) {
 // --- 初期化 ---
 window.addEventListener("resize", () => { resize(); });
 resize();
-requestWakeLock();
+$("wakelock").addEventListener("click", toggleWakeLock);
 draw();
 
 // Service Worker 登録
