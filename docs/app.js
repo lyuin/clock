@@ -54,7 +54,7 @@ document.addEventListener("visibilitychange", () => {
 
 // --- 描画パーツ ---
 function resize() {
-  const size = Math.min(window.innerWidth, window.innerHeight) * 0.8;
+  const size = Math.min(window.innerWidth, window.innerHeight) * 0.85;
   const dpr = window.devicePixelRatio || 1;
   canvas.width = size * dpr;
   canvas.height = size * dpr;
@@ -70,13 +70,29 @@ function drawTicks(cx, cy, r) {
     const len = isHour ? r * 0.12 : r * 0.05;
     const lw = isHour ? 2.5 : 1;
     const color = isHour ? "#eee" : "#555";
-    ctx.beginPath();
-    ctx.moveTo(cx + Math.cos(angle) * (r - len), cy + Math.sin(angle) * (r - len));
-    ctx.lineTo(cx + Math.cos(angle) * r, cy + Math.sin(angle) * r);
-    ctx.strokeStyle = color;
-    ctx.lineWidth = lw;
-    ctx.lineCap = "round";
-    ctx.stroke();
+    if (isHour && i === 0) {
+      // 12時位置: 二本線
+      const gap = r * 0.025;
+      const cos = Math.cos(angle), sin = Math.sin(angle);
+      const nx = -sin, ny = cos; // 法線方向
+      for (const sign of [-1, 1]) {
+        ctx.beginPath();
+        ctx.moveTo(cx + cos * (r - len) + nx * gap * sign, cy + sin * (r - len) + ny * gap * sign);
+        ctx.lineTo(cx + cos * r + nx * gap * sign, cy + sin * r + ny * gap * sign);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lw;
+        ctx.lineCap = "round";
+        ctx.stroke();
+      }
+    } else {
+      ctx.beginPath();
+      ctx.moveTo(cx + Math.cos(angle) * (r - len), cy + Math.sin(angle) * (r - len));
+      ctx.lineTo(cx + Math.cos(angle) * r, cy + Math.sin(angle) * r);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = lw;
+      ctx.lineCap = "round";
+      ctx.stroke();
+    }
   }
 }
 
@@ -99,9 +115,13 @@ function drawHands(cx, cy, r, now) {
   const m = now.getMinutes();
   const s = now.getSeconds();
   const ms = now.getMilliseconds();
+  const secAngle = (s + ms / 1000) * 6 - 90;
   drawHand(cx, cy, (h + m / 60) * 30 - 90, r * 0.55, 4, "#eee");
   drawHand(cx, cy, (m + s / 60) * 6 - 90, r * 0.78, 2.5, "#eee");
-  drawHand(cx, cy, (s + ms / 1000) * 6 - 90, r * 0.85, 1, "#e57373");
+  // 秒針: カウンターウェイト（反対側）
+  drawHand(cx, cy, secAngle + 180, r * 0.85 * 0.25, 2.5, "#e57373");
+  // 秒針: メイン
+  drawHand(cx, cy, secAngle, r * 0.85, 1, "#e57373");
   ctx.beginPath();
   ctx.arc(cx, cy, 4, 0, Math.PI * 2);
   ctx.fillStyle = "#e57373";

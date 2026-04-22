@@ -10,8 +10,9 @@ body {
   color: #eee;
   height: 100dvh;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
+  padding-top: 10dvh;
   overflow: hidden;
   -webkit-user-select: none;
   user-select: none;
