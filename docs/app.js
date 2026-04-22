@@ -77,7 +77,7 @@ function drawTicks(cx, cy, r) {
       const nx = -sin, ny = cos; // 法線方向
       for (const sign of [-1, 1]) {
         ctx.beginPath();
-        ctx.moveTo(cx + cos * (r - len) + nx * gap * sign, cy + sin * (r - len) + ny * gap * sign);
+        ctx.moveTo(cx + cos * (r - len * 1.5) + nx * gap * sign, cy + sin * (r - len * 1.5) + ny * gap * sign);
         ctx.lineTo(cx + cos * r + nx * gap * sign, cy + sin * r + ny * gap * sign);
         ctx.strokeStyle = color;
         ctx.lineWidth = lw;
@@ -119,7 +119,7 @@ function drawHands(cx, cy, r, now) {
   drawHand(cx, cy, (h + m / 60) * 30 - 90, r * 0.55, 4, "#eee");
   drawHand(cx, cy, (m + s / 60) * 6 - 90, r * 0.78, 2.5, "#eee");
   // 秒針: カウンターウェイト（反対側）
-  drawHand(cx, cy, secAngle + 180, r * 0.85 * 0.25, 2.5, "#e57373");
+  drawHand(cx, cy, secAngle + 180, r * 0.85 * 0.375, 2.5, "#e57373");
   // 秒針: メイン
   drawHand(cx, cy, secAngle, r * 0.85, 1, "#e57373");
   ctx.beginPath();
