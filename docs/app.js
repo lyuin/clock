@@ -4,7 +4,8 @@ const canvas = $("clock");
 const ctx = canvas.getContext("2d");
 
 // --- テーマ切り替え ---
-const THEMES = ["standard", "horizon", "legacy"];
+const THEMES = ["standard"];
+// const THEMES = ["standard", "horizon", "legacy"]; // TODO: デザイン調整後に有効化
 let currentTheme = localStorage.getItem("clock-theme") || THEMES[0];
 if (!THEMES.includes(currentTheme)) currentTheme = THEMES[0];
 
