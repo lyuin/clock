@@ -114,17 +114,17 @@ function drawHands(cx, cy, r, now) {
   const h = now.getHours() % 12;
   const m = now.getMinutes();
   const s = now.getSeconds();
-  const ms = now.getMilliseconds();
-  const secAngle = (s + ms / 1000) * 6 - 90;
-  drawHand(cx, cy, (h + m / 60) * 30 - 90, r * 0.55, 4, "#eee");
-  drawHand(cx, cy, (m + s / 60) * 6 - 90, r * 0.78, 2.5, "#eee");
-  // 秒針: カウンターウェイト（反対側）
-  drawHand(cx, cy, secAngle + 180, r * 0.85 * 0.375, 2.5, "#e57373");
-  // 秒針: メイン
-  drawHand(cx, cy, secAngle, r * 0.85, 1, "#e57373");
+  const hAngle = (h + m / 60) * 30 - 90;
+  const mAngle = (m + s / 60) * 6 - 90;
+  // 時針 + カウンターウェイト
+  drawHand(cx, cy, hAngle, r * 0.55, 4, "#eee");
+  drawHand(cx, cy, hAngle + 180, r * 0.55 * 0.25, 4, "#eee");
+  // 分針 + カウンターウェイト
+  drawHand(cx, cy, mAngle, r * 0.78, 2.5, "#eee");
+  drawHand(cx, cy, mAngle + 180, r * 0.78 * 0.2, 2.5, "#eee");
   ctx.beginPath();
   ctx.arc(cx, cy, 4, 0, Math.PI * 2);
-  ctx.fillStyle = "#e57373";
+  ctx.fillStyle = "#eee";
   ctx.fill();
 }
 
