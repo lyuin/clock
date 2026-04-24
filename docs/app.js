@@ -64,17 +64,16 @@ function resize() {
 }
 
 function drawTicks(cx, cy, r) {
-  for (let i = 0; i < 60; i++) {
-    const angle = (i * 6 - 90) * Math.PI / 180;
-    const isHour = i % 5 === 0;
-    const len = isHour ? r * 0.12 : r * 0.05;
-    const lw = isHour ? 2.5 : 1;
-    const color = isHour ? "#eee" : "#555";
-    if (isHour && i === 0) {
+  for (let i = 0; i < 12; i++) {
+    const angle = (i * 30 - 90) * Math.PI / 180;
+    const len = r * 0.12;
+    const lw = 2.5;
+    const color = "#eee";
+    if (i === 0) {
       // 12時位置: 二本線
       const gap = r * 0.025;
       const cos = Math.cos(angle), sin = Math.sin(angle);
-      const nx = -sin, ny = cos; // 法線方向
+      const nx = -sin, ny = cos;
       for (const sign of [-1, 1]) {
         ctx.beginPath();
         ctx.moveTo(cx + cos * (r - len * 1.5) + nx * gap * sign, cy + sin * (r - len * 1.5) + ny * gap * sign);
@@ -113,9 +112,8 @@ function drawRomanNumerals(cx, cy, r) {
 function drawHands(cx, cy, r, now) {
   const h = now.getHours() % 12;
   const m = now.getMinutes();
-  const s = now.getSeconds();
   const hAngle = (h + m / 60) * 30 - 90;
-  const mAngle = (m + s / 60) * 6 - 90;
+  const mAngle = m * 6 - 90;
   // 時針 + カウンターウェイト
   drawHand(cx, cy, hAngle, r * 0.55, 4, "#eee");
   drawHand(cx, cy, hAngle + 180, r * 0.55 * 0.25, 4, "#eee");
@@ -250,6 +248,12 @@ function draw() {
 
   ctx.clearRect(0, 0, w, w);
 
+  // 文字盤背景
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.fillStyle = "#1a1a1a";
+  ctx.fill();
+
   if (currentTheme === "legacy") {
     drawLegacy(cx, cy, r, now);
   } else {
@@ -261,8 +265,6 @@ function draw() {
     }
     drawHands(cx, cy, r, now);
   }
-
-  requestAnimationFrame(draw);
 }
 
 // --- 初期化 ---
@@ -272,6 +274,7 @@ applyThemeBg();
 resize();
 $("wakelock").addEventListener("click", toggleWakeLock);
 draw();
+setInterval(draw, 1000);
 
 // Service Worker 登録
 if ("serviceWorker" in navigator) {
