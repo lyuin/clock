@@ -1,4 +1,4 @@
-const CACHE_NAME = "clock-20260416.6";
+const CACHE_NAME = "clock-20260416.7";
 const SHELL = ["./", "index.html", "style.css", "app.js", "manifest.json"];
 
 self.addEventListener("install", (e) => {
